@@ -44,4 +44,12 @@ public class AccountServiceTest {
     BankAccount bankAccount= new AccountServiceImpl().getBankAccount(accountId);
 
   }
+
+  @Test(expected = InvalidAccountError.class)
+  public void givenAccountBelow999_returnInvalidAccountError() {
+    int accountId = 999;
+
+    BankAccount bankAccount= new AccountServiceImpl().getBankAccount(accountId);
+
+  }
 }
