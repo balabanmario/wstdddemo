@@ -12,6 +12,7 @@ import org.mockito.Mockito;
 import java.math.BigDecimal;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 public class AccountServiceTest {
@@ -119,6 +120,39 @@ public class AccountServiceTest {
     int accountId = 1234;
 
     BankAccount bankAccount = getAccountService().getBankAccount(accountId);
+
+  }
+
+
+  /**
+   * UC4:
+   * Dato un BankAccount (con accountId1) di cui l'anagrafica esiste sul
+   * sistema Core e il cui riferimento (payPalRefId) NON esiste sul
+   * sistema PayPal
+   * <p>
+   * Quando il servizio di recupero informazioni
+   * viene chiamata con accountId1
+   * <p>
+   * Allora il risultato atteso è  il BankAccount completa
+   * d'informazioni anagrafici Core (valuta, nome conto, accountId) e credito ZERO PayPall
+   */
+
+  @Test
+  public void givenNotExistingPayPallAccount_returnAccountWithBalanceZero() {
+    //arrange
+    int accountId = 2000;
+    Account account = new Account("USD", "Secondary Account");
+
+    when(accountRepository.findById(accountId)).thenReturn(java.util.Optional.of(account));
+    doThrow(new AccountNotFoundError(accountId)).when(payPallService).getBalance(accountId);
+
+    //execute
+    BankAccount bankAccount = getAccountService().getBankAccount(accountId);
+
+    //assert
+    assertThat(bankAccount.getCurrency()).isEqualTo("USD");
+    assertThat(bankAccount.getName()).isEqualTo("Secondary Account");
+    assertThat(bankAccount.getBalance()).isEqualTo(BigDecimal.ZERO);
 
   }
 
