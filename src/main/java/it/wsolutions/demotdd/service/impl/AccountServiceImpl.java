@@ -1,19 +1,20 @@
 package it.wsolutions.demotdd.service.impl;
 
+import it.wsolutions.demotdd.gateway.PayPallService;
+import it.wsolutions.demotdd.model.Account;
 import it.wsolutions.demotdd.model.BankAccount;
 import it.wsolutions.demotdd.repository.AccountRepository;
 import it.wsolutions.demotdd.service.AccountNotFoundError;
 import it.wsolutions.demotdd.service.InvalidAccountError;
 import it.wsolutions.demotdd.service.api.AccountService;
+import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
 
+@RequiredArgsConstructor
 public class AccountServiceImpl implements AccountService {
-  private AccountRepository accountRepository;
-
-  public AccountServiceImpl(AccountRepository accountRepository) {
-    this.accountRepository = accountRepository;
-  }
+  private final PayPallService payPallService;
+  private final AccountRepository accountRepository;
 
   @Override
   public BankAccount getBankAccount(int accountId) {
@@ -21,11 +22,9 @@ public class AccountServiceImpl implements AccountService {
       throw new InvalidAccountError();
     }
 
-    if (!accountRepository.existsById(accountId)) {
-      throw new AccountNotFoundError();
-    }
-
-    return new BankAccount("EUR", "Primary Account", BigDecimal.TEN);
+    Account account = accountRepository.findById(accountId).orElseThrow(() -> new AccountNotFoundError(accountId));
+    BigDecimal balance = payPallService.getBalance(accountId);
+    return new BankAccount(account.getCurrency(), account.getName(), balance);
   }
 
 }

@@ -1,5 +1,7 @@
 package it.wsolutions.demotdd.service;
 
+import it.wsolutions.demotdd.gateway.PayPallService;
+import it.wsolutions.demotdd.model.Account;
 import it.wsolutions.demotdd.model.BankAccount;
 import it.wsolutions.demotdd.repository.AccountRepository;
 import it.wsolutions.demotdd.service.impl.AccountServiceImpl;
@@ -15,12 +17,14 @@ import static org.mockito.Mockito.when;
 public class AccountServiceTest {
 
   private static AccountServiceImpl accountService;
-  private static  AccountRepository accountRepository;
+  private static AccountRepository accountRepository;
+  private static PayPallService payPallService;
 
   @BeforeClass
   public static void setUp() {
     accountRepository = Mockito.mock(AccountRepository.class);
-    accountService = new AccountServiceImpl(accountRepository);
+    payPallService = Mockito.mock(PayPallService.class);
+    accountService = new AccountServiceImpl(payPallService, accountRepository);
   }
 
   /**
@@ -34,7 +38,7 @@ public class AccountServiceTest {
    * viene chiamata con accountId1
    * <p>
    * Allora il risultato atteso è  il BankAccount completa
-   * d'informazioni anagrafici (valuta, nome conto, accountId) e di credito (saldo)
+   * d'informazioni anagrafici Core (valuta, nome conto, accountId) e di credito (saldo) PayPall
    */
 
   @Test
@@ -42,11 +46,13 @@ public class AccountServiceTest {
 
     //arrange
     int accountId = 1000;
-    when(accountRepository.existsById(accountId)).thenReturn(true);
+    Account account = new Account("EUR", "Primary Account");
+
+    when(accountRepository.findById(accountId)).thenReturn(java.util.Optional.of(account));
+    when(payPallService.getBalance(accountId)).thenReturn(BigDecimal.TEN);
 
     //execute
     BankAccount bankAccount = getAccountService().getBankAccount(accountId);
-
 
     //assert
     assertThat(bankAccount.getCurrency()).isEqualTo("EUR");
@@ -115,6 +121,5 @@ public class AccountServiceTest {
     BankAccount bankAccount = getAccountService().getBankAccount(accountId);
 
   }
-
 
 }
