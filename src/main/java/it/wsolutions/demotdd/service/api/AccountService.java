@@ -1,4 +1,4 @@
-package it.wsolutions.demotdd.service;
+package it.wsolutions.demotdd.service.api;
 
 import it.wsolutions.demotdd.model.BankAccount;
 

@@ -2,7 +2,7 @@ package it.wsolutions.demotdd.service;
 
 import it.wsolutions.demotdd.model.BankAccount;
 import it.wsolutions.demotdd.service.impl.AccountServiceImpl;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import java.math.BigDecimal;
 
@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
  *  di informazioni angarifici (valuta, nome conto, accountId,) e di credito (saldo)
  */
 
-class AccountServiceTest {
+public class AccountServiceTest {
 
   @Test
   public void givenExistingAccount_returnFullDataWithBalance() {
@@ -34,6 +34,14 @@ class AccountServiceTest {
     assertThat(bankAccount.getCurrency()).isEqualTo("EUR");
     assertThat(bankAccount.getName()).isEqualTo("Primary Account");
     assertThat(bankAccount.getBalance()).isEqualTo(BigDecimal.TEN);
+
+  }
+
+  @Test(expected = InvalidAccountError.class)
+  public void givenInvalidAccount_returnInvalidAccountError() {
+    int accountId = -1000;
+
+    BankAccount bankAccount= new AccountServiceImpl().getBankAccount(accountId);
 
   }
 }
