@@ -47,7 +47,7 @@ public class AccountServiceTest {
 
     //arrange
     int accountId = 1000;
-    Account account = new Account("EUR", "Primary Account");
+    Account account = new Account(1L, "EUR", "Primary Account");
 
     when(accountRepository.findById(accountId)).thenReturn(java.util.Optional.of(account));
     when(payPallService.getBalance(accountId)).thenReturn(BigDecimal.TEN);
@@ -123,7 +123,6 @@ public class AccountServiceTest {
 
   }
 
-
   /**
    * UC4:
    * Dato un BankAccount (con accountId1) di cui l'anagrafica esiste sul
@@ -141,7 +140,7 @@ public class AccountServiceTest {
   public void givenNotExistingPayPallAccount_returnAccountWithBalanceZero() {
     //arrange
     int accountId = 2000;
-    Account account = new Account("USD", "Secondary Account");
+    Account account = new Account(2L, "USD", "Secondary Account");
 
     when(accountRepository.findById(accountId)).thenReturn(java.util.Optional.of(account));
     doThrow(new AccountNotFoundError(accountId)).when(payPallService).getBalance(accountId);

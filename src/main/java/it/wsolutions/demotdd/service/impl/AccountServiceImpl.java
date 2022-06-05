@@ -9,11 +9,13 @@ import it.wsolutions.demotdd.service.InvalidAccountError;
 import it.wsolutions.demotdd.service.api.AccountService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
 @RequiredArgsConstructor
 @Slf4j
+@Service
 public class AccountServiceImpl implements AccountService {
   private final PayPallService payPallService;
   private final AccountRepository accountRepository;
@@ -36,7 +38,7 @@ public class AccountServiceImpl implements AccountService {
 
   private void validate(int accountId) {
     if (accountId < 1000) {
-      throw new InvalidAccountError();
+      throw new InvalidAccountError(accountId);
     }
   }
 
