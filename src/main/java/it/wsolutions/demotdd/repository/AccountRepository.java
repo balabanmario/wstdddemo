@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface AccountRepository extends JpaRepository<Account, Integer> {
+public interface AccountRepository extends JpaRepository<Account, Long> {
 
   @Query("select u from Account u where u.name = :name")
   Account findByNameCustomQuery(@Param("name") String name);

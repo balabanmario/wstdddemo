@@ -4,5 +4,5 @@ import java.io.IOException;
 import java.math.BigDecimal;
 
 public interface PayPallService {
-  BigDecimal getBalance(int accountId);
+  BigDecimal getBalance(long accountId);
 }

@@ -1,56 +1,70 @@
 package it.wsolutions.demotdd.integration;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import it.wsolutions.demotdd.model.Account;
+import it.wsolutions.demotdd.repository.AccountRepository;
 import org.junit.Rule;
 import org.junit.Test;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Scanner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * This is an Integration Test that should check
+ * a Complete UseCase involving all its dependencies.
+ * External dependencies and DB data must be mocked.
+ */
+@ExtendWith(SpringExtension.class)
+@AutoConfigureMockMvc
+@RunWith(SpringRunner.class)
+@SpringBootTest
 public class PayPallServiceIT {
 
   @Rule
   public WireMockRule wireMockRule = new WireMockRule(8181);
 
+  @Autowired
+  MockMvc mockMvc;
 
+  @Autowired
+  private AccountRepository accountRepository;
 
   @Test
-  public void changeStateOnEachCallTest() throws IOException {
-    stubFor(get(urlPathMatching("/balance/.*"))
-        .willReturn(aResponse()
-            .withStatus(200)
-            .withHeader("Content-Type", "application/json")
-            .withBody("\"balance\": \"4321\"")));
+  public void changeStateOnEachCallTest() throws Exception {
+    //arrange
+    Account entity = accountRepository.save(new Account("EUR", "MyAccount"));
+    Long accountId = entity.getId();
 
+    stubFor(get(urlPathMatching("/balance/.*")).willReturn(aResponse().withStatus(200)
+        .withHeader("Content-Type", "application/json")
+        .withBody("{\"balance\": \"123123\"}")));
 
-    CloseableHttpClient httpClient = HttpClients.createDefault();
-    HttpGet request = new HttpGet("http://localhost:8181/balance/123");
-    HttpResponse httpResponse = httpClient.execute(request);
-    String stringResponse = convertHttpResponseToString(httpResponse);
+    //execute
+    ResultActions actions = mockMvc.perform(MockMvcRequestBuilders.get("/account/" + accountId).contentType(MediaType.APPLICATION_JSON));
 
-    verify(getRequestedFor(urlEqualTo("/balance/123")));
-    assertEquals(200, httpResponse.getStatusLine().getStatusCode());
-    assertEquals("application/json", httpResponse.getFirstHeader("Content-Type").getValue());
-    assertEquals("\"balance\": \"4321\"", stringResponse);
+    //assert
+    actions
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.currency", is("EUR")))
+        .andExpect(jsonPath("$.name", is("MyAccount")))
+        .andExpect(jsonPath("$.balance", is(123123)))
+        .andDo(print());
+
+    verify(getRequestedFor(urlEqualTo("/balance/" + accountId)));
   }
 
-  private String convertHttpResponseToString(HttpResponse httpResponse) throws IOException {
-    InputStream inputStream = httpResponse.getEntity().getContent();
-    return convertInputStreamToString(inputStream);
-  }
-
-  private String convertInputStreamToString(InputStream inputStream) {
-    Scanner scanner = new Scanner(inputStream, "UTF-8");
-    String string = scanner.useDelimiter("\\Z").next();
-    scanner.close();
-    return string;
-  }
 }

@@ -46,7 +46,7 @@ public class AccountServiceTest {
   public void givenExistingAccount_returnFullDataWithBalance() {
 
     //arrange
-    int accountId = 1000;
+    long accountId = 1000;
     Account account = new Account(1L, "EUR", "Primary Account");
 
     when(accountRepository.findById(accountId)).thenReturn(java.util.Optional.of(account));
@@ -139,7 +139,7 @@ public class AccountServiceTest {
   @Test
   public void givenNotExistingPayPallAccount_returnAccountWithBalanceZero() {
     //arrange
-    int accountId = 2000;
+    long accountId = 2000;
     Account account = new Account(2L, "USD", "Secondary Account");
 
     when(accountRepository.findById(accountId)).thenReturn(java.util.Optional.of(account));

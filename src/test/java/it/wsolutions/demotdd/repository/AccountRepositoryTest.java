@@ -1,4 +1,4 @@
-package it.wsolutions.demotdd.integration;
+package it.wsolutions.demotdd.repository;
 
 import it.wsolutions.demotdd.model.Account;
 import it.wsolutions.demotdd.repository.AccountRepository;
@@ -18,7 +18,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @RunWith(SpringRunner.class)
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
-public class AccountRepositoryIT {
+public class AccountRepositoryTest {
 
   @Autowired private DataSource dataSource;
   @Autowired private EntityManager entityManager;
@@ -32,14 +32,14 @@ public class AccountRepositoryIT {
   }
 
   @Test
-  public void whenSaved_thenFindByNameCustomQuery() {
+  public void whenSaved_thenFindByNameCustomQueryIsNotNull() {
     Account entity = new Account("EUR", "custom name");
     accountRepository.save(entity);
     assertThat(accountRepository.findByNameCustomQuery("custom name")).isNotNull();
   }
 
   @Test
-  public void whenSaved_thenFindByNameNativeQuery() {
+  public void whenSaved_thenFindByNameNativeQueryIsNotNull() {
     Account entity = new Account("EUR", "custom native");
     accountRepository.save(entity);
     assertThat(accountRepository.findByNameNativeQuery("custom native")).isNotNull();

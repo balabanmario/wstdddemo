@@ -21,7 +21,7 @@ public class AccountServiceImpl implements AccountService {
   private final AccountRepository accountRepository;
 
   @Override
-  public BankAccount getBankAccount(int accountId) {
+  public BankAccount getBankAccount(long accountId) {
 
     validate(accountId);
 
@@ -32,17 +32,18 @@ public class AccountServiceImpl implements AccountService {
     return new BankAccount(account.getCurrency(), account.getName(), balance);
   }
 
-  private Account getAccount(int accountId) {
+  private Account getAccount(long accountId) {
+
     return accountRepository.findById(accountId).orElseThrow(() -> new AccountNotFoundError(accountId));
   }
 
-  private void validate(int accountId) {
+  private void validate(long accountId) {
     if (accountId < 1000) {
       throw new InvalidAccountError(accountId);
     }
   }
 
-  private BigDecimal getBalance(int accountId, Account account) {
+  private BigDecimal getBalance(long accountId, Account account) {
     BigDecimal balance = BigDecimal.ZERO;
     try {
       balance = payPallService.getBalance(accountId);

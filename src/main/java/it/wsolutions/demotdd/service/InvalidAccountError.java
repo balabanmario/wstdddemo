@@ -1,7 +1,7 @@
 package it.wsolutions.demotdd.service;
 
 public class InvalidAccountError extends RuntimeException {
-  public InvalidAccountError(int accountId) {
+  public InvalidAccountError(long accountId) {
     super("Invalid  accountId : "+accountId);
   }
 }
